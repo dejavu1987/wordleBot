@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 // Initialize correct patter with no letters dashes means any letter will be replaced as we find correct letters
-let correct = '-----';
+let correct = ['\\w', '\\w', '\\w', '\\w', '\\w'];
 
 // simulate keystroke
 const hitKey = (key) => {
@@ -39,7 +39,6 @@ const containsAll = (word, letters) => {
   });
 };
 
-//
 // Check the game state and filter out words
 const getGameState = (remainingWords) => {
   const gameState = JSON.parse(localStorage.getItem('gameState'));
@@ -53,22 +52,33 @@ const getGameState = (remainingWords) => {
     attempt.split('').forEach((l, j) => {
       switch (evaluations[i][j]) {
         case 'absent':
-          absent.push(l);
+          var corrIdx = correct.indexOf(l);
+          var presIdx = present.indexOf(l);
+          if (presIdx === -1 && corrIdx === -1) {
+            absent.push(l);
+          }
           break;
 
         case 'present':
           // if this letter is repeated and flagged as absent for being on different position !!some weirdness
-          const absIdx = absent.indexOf(l);
+          var absIdx = absent.indexOf(l);
           if (absIdx > -1) {
             absent.splice(absIdx, 1);
           }
           present.push(l);
+          console.log(correct[j]);
+          if (correct[j] !== 'w') {
+            correct[j] = `[^${l}]`;
+          }
           break;
 
         case 'correct':
-          var correctArray = correct.split('');
-          correctArray[j] = l;
-          correct = correctArray.join('');
+          // if this letter is repeated and flagged as absent for being on different position !!some weirdness
+          var absIdx = absent.indexOf(l);
+          if (absIdx > -1) {
+            absent.splice(absIdx, 1);
+          }
+          correct[j] = l;
           break;
 
         default:
@@ -76,11 +86,13 @@ const getGameState = (remainingWords) => {
       }
     });
   });
-
+  console.log({ absent, present, correct });
+  const corrExp = correct.join('');
+  console.log(corrExp);
   return remainingWords
     .filter((w) => containsAll(w, present))
     .filter((w) => doesNotContain(w, absent))
-    .filter((w) => w.match(new RegExp(correct.replace(/-/g, '\\w'))));
+    .filter((w) => w.match(new RegExp(corrExp)));
 };
 
 (async function () {
@@ -112,7 +124,12 @@ const getGameState = (remainingWords) => {
   //hitWord(mostVowels[0])
 
   // Use Random first word just for fun
-  hitWord(words[Math.floor(Math.random() * 5000)]);
+  //hitWord(words[Math.floor(Math.random() * 5000)]);
+
+  //hitWord('potty');
+  //hitWord('nouns');
+  //hitWord('tasty');
+  hitWord('moons');
   remainingWords = getGameState(remainingWords);
   console.log(remainingWords);
 
@@ -121,7 +138,9 @@ const getGameState = (remainingWords) => {
   let t = setInterval(() => {
     count++;
     // Either win or ran out of turns
-    if (count > 4 || correct.indexOf('-') === -1) {
+    console.log(count);
+    console.log(correct.indexOf('\\w'));
+    if (count > 4 || correct.indexOf('\\w') === -1) {
       clearInterval(t);
       localStorage.removeItem('gameState');
       setTimeout(() => {
