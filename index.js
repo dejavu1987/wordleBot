@@ -42,6 +42,8 @@ const containsAll = (word, letters) => {
 // Check the game state and filter out words
 const getGameState = (remainingWords) => {
   const gameState = JSON.parse(localStorage.getItem('gameState'));
+  if (!gameState) return remainingWords;
+
   const boardState = gameState.boardState;
   const evaluations = gameState.evaluations;
 
@@ -66,7 +68,7 @@ const getGameState = (remainingWords) => {
             absent.splice(absIdx, 1);
           }
           present.push(l);
-          console.log(correct[j]);
+          //console.log(correct[j])
           if (correct[j] !== 'w') {
             correct[j] = `[^${l}]`;
           }
@@ -86,9 +88,9 @@ const getGameState = (remainingWords) => {
       }
     });
   });
-  console.log({ absent, present, correct });
+  //console.log({absent, present, correct})
   const corrExp = correct.join('');
-  console.log(corrExp);
+  //console.log(corrExp)
   return remainingWords
     .filter((w) => containsAll(w, present))
     .filter((w) => doesNotContain(w, absent))
@@ -106,7 +108,7 @@ const getGameState = (remainingWords) => {
     'https://cdn.jsdelivr.net/gh/charlesreid1/five-letter-words@master/sgb-words.txt'
   ).then((res) => res.text());
   const words = wordDb.split('\n');
-  console.log(words);
+  //console.log(words);
   let remainingWords = words;
 
   const mostVowels = words.filter(
@@ -124,31 +126,34 @@ const getGameState = (remainingWords) => {
   //hitWord(mostVowels[0])
 
   // Use Random first word just for fun
-  //hitWord(words[Math.floor(Math.random() * 5000)]);
+  hitWord(words[Math.floor(Math.random() * 5000)]);
 
   //hitWord('potty');
   //hitWord('nouns');
   //hitWord('tasty');
-  hitWord('moons');
+  //hitWord('moons');
   remainingWords = getGameState(remainingWords);
-  console.log(remainingWords);
+  console.log('Remaining words: ' + remainingWords.length);
 
   // repeat
   let count = 0;
   let t = setInterval(() => {
     count++;
     // Either win or ran out of turns
-    console.log(count);
-    console.log(correct.indexOf('\\w'));
+    //console.log(count)
+    //console.log(correct.indexOf('\\w'))
+
+    hitWord(remainingWords[0]);
+    remainingWords = getGameState(remainingWords);
+    console.log('Remaining words: ' + remainingWords.length);
+    console.log(remainingWords);
+
     if (count > 4 || correct.indexOf('\\w') === -1) {
       clearInterval(t);
       localStorage.removeItem('gameState');
       setTimeout(() => {
         location.reload();
-      }, 3000);
+      }, 4000);
     }
-    hitWord(remainingWords[0]);
-    remainingWords = getGameState(remainingWords);
-    console.log(remainingWords);
   }, 2000);
 })();
