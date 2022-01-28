@@ -139,6 +139,7 @@ const getGameState = (remainingWords) => {
   let count = 0;
   let t = setInterval(() => {
     count++;
+    console.log(count);
     // Either win or ran out of turns
     //console.log(count)
     //console.log(correct.indexOf('\\w'))
@@ -148,12 +149,12 @@ const getGameState = (remainingWords) => {
     console.log('Remaining words: ' + remainingWords.length);
     console.log(remainingWords);
 
-    if (count > 4 || correct.indexOf('\\w') === -1) {
+    if (count > 4 || localStorage.getItem('gameStatus') === 'WIN') {
       clearInterval(t);
       localStorage.removeItem('gameState');
       setTimeout(() => {
         location.reload();
-      }, 4000);
+      }, 3000);
     }
   }, 2000);
 })();
