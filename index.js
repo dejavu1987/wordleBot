@@ -9,7 +9,7 @@
 // @grant        none
 // ==/UserScript==
 
-// Initialize correct patter with no letters dashes means any letter will be replaced as we find correct letters
+// Initialize correct pattern with \w means any letter will be replaced as we find correct letters
 let correct = ['\\w', '\\w', '\\w', '\\w', '\\w'];
 
 // simulate keystroke
